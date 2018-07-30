@@ -1,0 +1,39 @@
+{
+  "default":"en",
+  "en":{
+    "appName":"Flight program",
+    "progName":"Program name",
+    "startSwitch":"Start switch",
+    "cancelSwitch":"Cancel switch",
+    "procedure":"Procedure",
+    "auto":"auto",
+    "singleStep":"Single step",
+    "teachInTime":"Teach in time",
+    "backgroundMusic":"Background music",
+    "program":"Program",
+    "voiceOutput":"Speech",
+    "waitingTime":"waiting period [s]",
+    "beginFlight":"Start flight program",
+    "cancelFlight":"Flight program canceled",
+    "endFlight":"End of flight program",
+    "selectFile":"Choose flight program"
+  },
+  "de":{
+    "appName":"Flugprogramm",
+    "progName":"Programm Name",
+    "startSwitch":"Schalter starten",
+    "cancelSwitch":"Schalter abbrechen",
+    "procedure":"Programm Ablauf",
+    "auto":"Auto",
+    "singleStep":"Einzelschritt",
+    "teachInTime":"Zeit einlernen",
+    "backgroundMusic":"Hintergrund Musik",
+    "program":"Programm",
+    "voiceOutput":"Sprachausgabe",
+    "waitingTime":"Wartezeit [s]",
+    "beginFlight":"Start Flugprogramm",
+    "cancelFlight":"Flugprogramm abgebrochen",
+    "endFlight":"Ende Flugprogramm",
+    "selectFile":"Wähle Flugprogramm"
+  }
+}
