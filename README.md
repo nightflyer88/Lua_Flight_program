@@ -21,9 +21,9 @@ Just rename the flight program and the app will automatically make a copy of it.
 Is only possible by computer. The apps/flightProg/prog folder contains the flight programs.
 
 
-![screen000](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_programm/master/img/Screen000.bmp)
-![screen001](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_programm/master/img/Screen001.bmp)
-![screen002](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_programm/master/img/Screen002.bmp)
+![screen000](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_program/master/img/Screen000.bmp)
+![screen001](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_program/master/img/Screen001.bmp)
+![screen002](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_program/master/img/Screen002.bmp)
 
 ```
 Version history:
