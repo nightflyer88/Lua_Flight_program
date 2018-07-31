@@ -21,9 +21,9 @@ Einfach das Flugprogramm umbenennen, und die App erstellt automatisch eine Kopie
 Ist nur per Computer möglich. Im Ordner Apps/flightProg/Prog befinden sich die Flugprogramme.
 
 
-![screen000](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_programm/master/img/Screen000.bmp)
-![screen001](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_programm/master/img/Screen001.bmp)
-![screen002](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_programm/master/img/Screen002.bmp)
+![screen000](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_program/master/img/Screen000.bmp)
+![screen001](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_program/master/img/Screen001.bmp)
+![screen002](https://raw.githubusercontent.com/nightflyer88/Lua_Flight_program/master/img/Screen002.bmp)
 
 ```
 Version history:
