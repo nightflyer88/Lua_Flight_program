@@ -1,5 +1,7 @@
 # LUA Flight program
 
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=R69PMKTCXQBUU&source=url)
+
 Flight program training app. Each flight figure is announced by the app, it is therefore not necessary to look at the transmitter. An optional background music can also be played.
 
 
