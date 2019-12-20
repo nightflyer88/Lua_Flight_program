@@ -16,7 +16,12 @@
     "beginFlight":"Start flight program",
     "cancelFlight":"Flight program canceled",
     "endFlight":"End of flight program",
-    "selectFile":"Choose flight program"
+    "selectFile":"Choose flight program",
+    "selectAudio":"Choose audio file",
+    "openProg":"Open program..",
+    "newProg":"New program..",
+    "deleteProg":"Delete program..",
+    "deleteFileQuestion":"Delete program ?"
   },
   "de":{
     "appName":"Flugprogramm",
@@ -34,6 +39,11 @@
     "beginFlight":"Start Flugprogramm",
     "cancelFlight":"Flugprogramm abgebrochen",
     "endFlight":"Ende Flugprogramm",
-    "selectFile":"Wähle Flugprogramm"
+    "selectFile":"Wähle Flugprogramm",
+    "selectAudio":"Wähle Audio Datei",
+    "openProg":"Programm öffnen..",
+    "newProg":"Neues Programm..",
+    "deleteProg":"Programm löschen..",
+    "deleteFileQuestion":"Programm löschen ?"
   }
 }

@@ -7,27 +7,31 @@
 
     ---------------------------------------------------------
 
+    V1.1    25.07.19    added filebox lib - audio files can be placed in different folders 
     V1.0    29.07.18    initial release
 
 --]]
 
 ----------------------------------------------------------------------
 -- Locals for the application
-local appVersion="1.0"
+local appVersion="1.1"
 local lang
 
-local program={name, procedure=1, backgroundMusic, prog={}}
-local progPath="Apps/flightProg/Prog"
-local musicPath="Music"
+local new_program={name="new", procedure=1, backgroundMusic = "...", prog={}}
+local program = {}
+local progPath="/Apps/flightProg/Prog"
+local audioPath="/"
 
 local startSwitch,cancelSwitch
-local startIndex
+local startIndex, formView
 local progRun=-1
 local curProgIndex=0
 local lastTime,lastTimeSwitch=0,0
-local formView
-local musicList={}
 
+local editProgIndex=-1
+
+-- filebox lib
+local openfile = require("flightProg/filebox")
 
 ----------------------------------------------------------------------
 -- Read translations
@@ -42,9 +46,30 @@ end
 
 
 ----------------------------------------------------------------------
+-- helper functions
+local function getProgramFilePath(filename)
+    local filePath = ""
+    if (string.find(filename, '/', 1, true) or string.find(filename, ".jsn", 1))then
+        filePath = filename
+    else
+        filePath = progPath.."/"..filename..".jsn"
+    end
+    return filePath
+end
+
+function tablecopy(t)
+  local t2 = {}
+  for k,v in pairs(t) do
+    t2[k] = v
+  end
+  return t2
+end
+
+
+----------------------------------------------------------------------
 -- Store settings when changed by user
 local function saveProgram()
-    local file = io.open(progPath.."/"..program.name..".jsn","w")
+    local file = io.open(getProgramFilePath(program.name),"w")
     if(file) then
         local json_text = json.encode(program)
         io.write(file, json_text)
@@ -54,29 +79,48 @@ local function saveProgram()
 end
 
 local function readProgram()
-    local file = io.open(progPath.."/"..program.name..".jsn","r")
+    local filePath = getProgramFilePath(program.name)
+    local file = io.open(filePath,"r")
     if(file) then
-        local json_text=io.readall(progPath.."/"..program.name..".jsn")
+        local json_text=io.readall(filePath)
         program=json.decode(json_text)
         io.close(file)
-        if(not program.backgroundMusic) then
-            program.backgroundMusic=""
+        if(program.backgroundMusic == nil) then
+            program.backgroundMusic = "..."
+        end
+    end
+end
+
+local function newProgram()
+    saveProgram()
+    program=tablecopy(new_program)
+    --readProgram()
+    form.reinit(1)
+end
+
+local function deleteProgram(file)
+    if(file)then
+        if(form.question(lang.deleteFileQuestion,"",file,10000,false,1000) > 0)then
+            io.remove(file)         
         end
     end
 end
 
 local function nameChanged(value)
-    program.name = value
+    local oldProgramName = getProgramFilePath(program.name)
+    local newProgramName = openfile.getFilePath(oldProgramName).."/"..value..".jsn"
+    io.rename(oldProgramName, newProgramName)
+    program.name = newProgramName
     saveProgram()
 end
 
 local function startSwitchChanged(value)
-    startSwitch=value
+    startSwitch = value
     system.pSave("startSwitch",value)
 end
 
 local function cancelSwitchChanged(value)
-    cancelSwitch=value
+    cancelSwitch = value
     system.pSave("cancelSwitch",value)
 end
 
@@ -85,20 +129,33 @@ local function procedureChanged(value)
     saveProgram()
 end
 
-local function backgroundMusicChanged(value)
-    program.backgroundMusic = musicList[value]
-    saveProgram()
+local function audioChanged(value)
+    if(value ~= nil)then
+        if(editProgIndex > 0)then
+            program.prog[editProgIndex] = value
+        elseif(editProgIndex == 0)then
+            program.backgroundMusic = value
+        end
+        editProgIndex = -1
+        saveProgram()
+    end
 end
+
+local function programChanged(file)
+    if(file ~= nil)then
+        program.name = file
+        readProgram()
+    end
+end
+
 
 ----------------------------------------------------------------------
 -- Latches the current keyCode
 local function keyForm(keyCode)
+    openfile.updatekey(formView,keyCode)
+    
     if(formView==1)then
         if(keyCode==KEY_1)then
-            -- open flight program
-            saveProgram()
-            form.reinit(2)
-        elseif(keyCode==KEY_2)then
             -- add audio file
             local index=form.getFocusedRow() - startIndex
             if(index>0)then
@@ -109,7 +166,7 @@ local function keyForm(keyCode)
                 end
                 form.reinit(1)
             end
-        elseif(keyCode==KEY_3)then
+        elseif(keyCode==KEY_2)then
             -- add timer
             local index=form.getFocusedRow() - startIndex
             if(index>0)then
@@ -120,7 +177,7 @@ local function keyForm(keyCode)
                 end
                 form.reinit(1)
             end
-        elseif(keyCode==KEY_4)then
+        elseif(keyCode==KEY_3)then
             -- delete item
             local index=form.getFocusedRow() - startIndex
             if(index>0 and index<= #program.prog)then
@@ -128,64 +185,96 @@ local function keyForm(keyCode)
                 form.reinit(1)
             end
         end
-    elseif(formView==2)then
-        if(keyCode==KEY_1)then
-            -- main menu
-            form.reinit(1)
-        end
-    end
-    
-    if(keyCode==KEY_5 or keyCode==KEY_ESC)then
+        
+        if(keyCode==KEY_5 or keyCode==KEY_ESC)then
         -- exit app
         saveProgram()
+        end
     end
 end
 
 ----------------------------------------------------------------------
 -- Draw the main form (Application menu inteface)
 local function initForm(subform)
+    openfile.updateform(subform)
+    
     formView=subform
     if(subform==1)then
         -- main menu
         form.setTitle(lang.appName)
-        form.setButton(1,":folder",ENABLED)
-        form.setButton(2,":sndOn",ENABLED)
-        form.setButton(3,":timer",ENABLED)
-        form.setButton(4,":delete",ENABLED)
+        form.setButton(1,":sndOn",ENABLED)
+        form.setButton(2,":timer",ENABLED)
+        form.setButton(3,":delete",ENABLED)
+        
+        -- open program
+        form.addRow(2)
+        form.addIcon(":folder",{width=30, enabled = false})
+        form.addLink((function()
+                        saveProgram()
+                        openfile.openfile(128,lang.selectFile,"/",progPath,{"jsn"},programChanged,formView) 
+                    end),{label=lang.openProg,font=FONT_BOLD})
 
+        -- new program
+        form.addRow(2)
+        form.addIcon(":file",{width=30, enabled = false})
+        form.addLink((function()
+                        newProgram()
+                    end),{label=lang.newProg,font=FONT_BOLD})
+        
+        -- delete program
+        form.addRow(2)
+        form.addIcon(":cross",{width=30, enabled = false})
+        form.addLink((function()
+                        saveProgram()
+                        openfile.openfile(128,lang.selectFile,progPath,progPath,{"jsn"},deleteProgram,formView) 
+                    end),{label=lang.deleteProg,font=FONT_BOLD})
+        
+        -- spacer
+        form.addLabel({label="",font=FONT_MINI})
+        
+        -- program name
         form.addRow(2)
         form.addLabel({label=lang.progName})
-        form.addTextbox(program.name,20,nameChanged)
+        form.addTextbox(openfile.getFileName(program.name) or program.name,20,nameChanged)
 
+        -- start switch
         form.addRow(2)
         form.addLabel({label=lang.startSwitch})
         form.addInputbox(startSwitch,true,startSwitchChanged)
 
+        -- cancel switch
         form.addRow(2)
         form.addLabel({label=lang.cancelSwitch})
         form.addInputbox(cancelSwitch,true,cancelSwitchChanged)
 
+        -- program procedure
         form.addRow(2)
         form.addLabel({label=lang.procedure}) form.addSelectbox({lang.auto,lang.singleStep,lang.teachInTime},program.procedure,false,procedureChanged)
-        
+
+        -- background music
         form.addRow(2)
         form.addLabel({label=lang.backgroundMusic})
-        local index={} 
-        for k,v in pairs(musicList) do 
-            index[v]=k 
-        end 
-        form.addSelectbox(musicList, index[program.backgroundMusic]or 1,true,backgroundMusicChanged)
-
+        form.addLink((function()
+                        editProgIndex = 0
+                        openfile.openfile(128,lang.selectAudio,"/",audioPath,{"mp3"},audioChanged,subform) 
+                    end),{label = openfile.getFileName(program.backgroundMusic) or program.backgroundMusic, alignRight=true})
+        
+        -- spacer
         form.addLabel({label="",font=FONT_MINI})
+        
+        -- program label
         form.addLabel({label=lang.program,font=FONT_BOLD})
 
-        startIndex = 7
-
+        -- program list
+        startIndex = 11
         for i, v in ipairs(program.prog) do
             if(type(v)=="string")then
                 form.addRow(2)
                 form.addLabel({label=lang.voiceOutput})
-                form.addAudioFilebox(program.prog[i], function(value) program.prog[i]=value end)
+                form.addLink((function() 
+                                    editProgIndex = i 
+                                    openfile.openfile(128,lang.selectAudio,"/",audioPath,{"wav","mp3"},audioChanged,subform)
+                                end),{label = openfile.getFileName(program.prog[i]) or program.prog[i], alignRight=true})
             elseif(type(v)=="number")then
                 form.addRow(2)
                 form.addLabel({label=lang.waitingTime})
@@ -195,27 +284,10 @@ local function initForm(subform)
 
         form.addRow(1)
         form.addLabel({label="Powered by M.Lehmann V"..appVersion.." ",font=FONT_MINI,alignRight=true})
-    elseif(subform==2)then
-        -- open flight program
-        form.setTitle(lang.selectFile)
-        form.setButton(1,"Esc",ENABLED)
-
-        for name, filetype, size in dir(progPath) do
-            if string.sub(name,1,1) ~= "." then
-                if filetype=="file" then
-                    local progName = string.sub(name, 1, string.len(name)-4)
-                    form.addRow(2)
-                    form.addLink((function() 
-                                    program.name=progName
-                                    readProgram()
-                                    form.reinit(1) 
-                                end),
-                    {label = progName,width=150})
-                    form.addLabel({label=string.format("%.1f",(size/1000)).."KB",alignRight=true})
-                end
-            end
-        end 
-    end
+    end     
+    
+    -- get subform id from filebox and put it to application menu flow control
+    formView = openfile.getSubformID() or subform
 end
 
 
@@ -233,13 +305,13 @@ local function loop()
             lastTimeSwitch=system.getTimeCounter()
             if(progRun == -1) then
                 -- play background music
-                system.playFile("/"..musicPath.."/"..program.backgroundMusic, AUDIO_BACKGROUND)
+                system.playFile(program.backgroundMusic, AUDIO_BACKGROUND)
             end
             progRun=1
         end
     end
     if(cancelVal)then
-        if(cancelVal>0.5 and progRun ~= -1) then
+        if(cancelVal>0.5) then
             -- cancel flight programm
             progRun=-1 
             curProgIndex=0
@@ -315,18 +387,8 @@ end
 ----------------------------------------------------------------------
 -- Application initialization
 local function init()
-    -- read music folder
-    for name, filetype, size in dir(musicPath) do
-        if name == "." then
-            table.insert(musicList, "...")
-        elseif name ~= ".." then
-            if string.sub(name,1,1) ~= "." then
-                table.insert(musicList, name)
-            end
-        end
-    end
-    
-    program.name=system.pLoad("program","Prog1")
+    program=tablecopy(new_program)
+    program.name=system.pLoad("program","new")
     readProgram()
     startSwitch = system.pLoad("startSwitch")
     cancelSwitch = system.pLoad("cancelSwitch")
