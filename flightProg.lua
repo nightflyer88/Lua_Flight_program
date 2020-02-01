@@ -7,6 +7,7 @@
 
     ---------------------------------------------------------
 
+    V1.11   01.02.20    filebox lib update    
     V1.1    25.07.19    added filebox lib - audio files can be placed in different folders 
     V1.0    29.07.18    initial release
 
@@ -14,7 +15,7 @@
 
 ----------------------------------------------------------------------
 -- Locals for the application
-local appVersion="1.1"
+local appVersion="1.11"
 local lang
 
 local new_program={name="new", procedure=1, backgroundMusic = "...", prog={}}
@@ -152,7 +153,7 @@ end
 ----------------------------------------------------------------------
 -- Latches the current keyCode
 local function keyForm(keyCode)
-    openfile.updatekey(formView,keyCode)
+    openfile.updatekey(keyCode)
     
     if(formView==1)then
         if(keyCode==KEY_1)then
@@ -211,7 +212,7 @@ local function initForm(subform)
         form.addIcon(":folder",{width=30, enabled = false})
         form.addLink((function()
                         saveProgram()
-                        openfile.openfile(128,lang.selectFile,"/",progPath,{"jsn"},programChanged,formView) 
+                        openfile.openfile(lang.selectFile,"/",progPath,{"jsn"},programChanged,formView) 
                     end),{label=lang.openProg,font=FONT_BOLD})
 
         -- new program
@@ -226,7 +227,7 @@ local function initForm(subform)
         form.addIcon(":cross",{width=30, enabled = false})
         form.addLink((function()
                         saveProgram()
-                        openfile.openfile(128,lang.selectFile,progPath,progPath,{"jsn"},deleteProgram,formView) 
+                        openfile.openfile(lang.selectFile,progPath,progPath,{"jsn"},deleteProgram,formView) 
                     end),{label=lang.deleteProg,font=FONT_BOLD})
         
         -- spacer
@@ -256,7 +257,7 @@ local function initForm(subform)
         form.addLabel({label=lang.backgroundMusic})
         form.addLink((function()
                         editProgIndex = 0
-                        openfile.openfile(128,lang.selectAudio,"/",audioPath,{"mp3"},audioChanged,subform) 
+                        openfile.openfile(lang.selectAudio,"/",audioPath,{"mp3"},audioChanged,subform) 
                     end),{label = openfile.getFileName(program.backgroundMusic) or program.backgroundMusic, alignRight=true})
         
         -- spacer
@@ -273,7 +274,7 @@ local function initForm(subform)
                 form.addLabel({label=lang.voiceOutput})
                 form.addLink((function() 
                                     editProgIndex = i 
-                                    openfile.openfile(128,lang.selectAudio,"/",audioPath,{"wav","mp3"},audioChanged,subform)
+                                    openfile.openfile(lang.selectAudio,"/",audioPath,{"wav","mp3"},audioChanged,subform)
                                 end),{label = openfile.getFileName(program.prog[i]) or program.prog[i], alignRight=true})
             elseif(type(v)=="number")then
                 form.addRow(2)
@@ -286,8 +287,7 @@ local function initForm(subform)
         form.addLabel({label="Powered by M.Lehmann V"..appVersion.." ",font=FONT_MINI,alignRight=true})
     end     
     
-    -- get subform id from filebox and put it to application menu flow control
-    formView = openfile.getSubformID() or subform
+    formView = subform
 end
 
 
